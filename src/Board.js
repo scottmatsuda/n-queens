@@ -62,7 +62,7 @@
     },
 
 
-/*
+    /*
          _             _     _
      ___| |_ __ _ _ __| |_  | |__   ___ _ __ ___ _
     / __| __/ _` | '__| __| | '_ \ / _ \ '__/ _ (_)
@@ -78,13 +78,29 @@
     // --------------------------------------------------------------
     //
     // test if a specific row on this board contains a conflict
+    // time complexity => O(n)
     hasRowConflictAt: function(rowIndex) {
-      return false; // fixme
+      let count = 0;
+      let row = this.get(rowIndex);
+      for (let i = 0; i < row.length; i++) {
+        if (row[i] === 1) {
+          count++;
+        }
+      }
+      return count > 1;
     },
 
     // test if any rows on this board contain conflicts
+    // time complexity => O(n^2)
     hasAnyRowConflicts: function() {
-      return false; // fixme
+      let n = this.get('n');
+
+      for (let i = 0; i < n; i++) {
+        if (this.hasRowConflictAt(i)) {
+          return true;
+        }
+      }
+      return false;
     },
 
 
@@ -93,13 +109,32 @@
     // --------------------------------------------------------------
     //
     // test if a specific column on this board contains a conflict
+    // time complexity => O(n) assuming .get() is not a linear function itself
     hasColConflictAt: function(colIndex) {
-      return false; // fixme
+      let count = 0;
+      let n = this.get('n');
+
+      for (let i = 0; i < n; i++) {
+        let row = this.get(i);
+        if (row[colIndex] === 1) {
+          count++;
+        }
+      }
+
+      return count > 1;
     },
 
     // test if any columns on this board contain conflicts
+    // time complexity => O(n^2)
     hasAnyColConflicts: function() {
-      return false; // fixme
+      let count = 0;
+      let n = this.get('n');
+      for (let i = 0; i < n; i++) {
+        if (this.hasColConflictAt(i)) {
+          return true;
+        }
+      }
+      return false;
     },
 
 
@@ -108,12 +143,38 @@
     // --------------------------------------------------------------
     //
     // test if a specific major diagonal on this board contains a conflict
+    // time complexity => O(n^2)
     hasMajorDiagonalConflictAt: function(majorDiagonalColumnIndexAtFirstRow) {
-      return false; // fixme
+      let majorDiag = this._getFirstRowColumnIndexForMajorDiagonalOn(0, majorDiagonalColumnIndexAtFirstRow);
+      let count = 0;
+      let n = this.get('n');
+      for (let r = 0; r < n; r++) {
+        let row = this.get(r);
+        for (let c = 0; c < n; c++) {
+          if ((c - r) === majorDiag) {
+            if (row[c] === 1) {
+              count++;
+            }
+          }
+        }
+      }
+      return count > 1;
     },
 
     // test if any major diagonals on this board contain conflicts
+    // time complexity => O(n^n)
+    // making O(n^2) time complexity function call within a nested for loop => O(n^n) time complexity
     hasAnyMajorDiagonalConflicts: function() {
+      let n = this.get('n');
+      let count = 0;
+      for (let r = 0; r < n; r++) {
+        let row = this.get(r);
+        for (let c = 0; c < n; c++) {
+          if (this.hasMajorDiagonalConflictAt(c - r)) {
+            return true;
+          }
+        }
+      }
       return false; // fixme
     },
 
@@ -123,12 +184,37 @@
     // --------------------------------------------------------------
     //
     // test if a specific minor diagonal on this board contains a conflict
+    // time complexity => O(n^2)
     hasMinorDiagonalConflictAt: function(minorDiagonalColumnIndexAtFirstRow) {
-      return false; // fixme
+      let n = this.get('n');
+      let count = 0;
+      let minorDiag = this._getFirstRowColumnIndexForMinorDiagonalOn(0, minorDiagonalColumnIndexAtFirstRow);
+      for (let r = 0; r < n; r++) {
+        let row = this.get(r);
+        for (let c = 0; c < n; c++) {
+          if ((c + r) === minorDiag) {
+            if (row[c] === 1) {
+              count++;
+            }
+          }
+        }
+      }
+      return count > 1; // fixme
     },
 
     // test if any minor diagonals on this board contain conflicts
+    // time complexity => O(n^n)
+    // making O(n^2) time complexity function call within a nested for loop => O(n^n) time complexity
     hasAnyMinorDiagonalConflicts: function() {
+      let n = this.get('n');
+      for (let r = 0; r < n; r++) {
+        let row = this.get(r);
+        for (let c = 0; c < n; c++) {
+          if (this.hasMinorDiagonalConflictAt(c + r)) {
+            return true;
+          }
+        }
+      }
       return false; // fixme
     }
 
@@ -136,6 +222,7 @@
 
 
   });
+  // time complexity => O(n^2)
 
   var makeEmptyMatrix = function(n) {
     return _(_.range(n)).map(function() {
